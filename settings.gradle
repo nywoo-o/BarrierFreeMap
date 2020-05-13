@@ -1,0 +1,2 @@
+rootProject.name='BarrierFreeMap'
+include ':app'
