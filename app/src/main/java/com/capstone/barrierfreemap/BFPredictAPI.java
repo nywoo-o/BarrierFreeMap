@@ -1,8 +1,10 @@
 package com.capstone.barrierfreemap;
 
 import android.os.AsyncTask;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,42 +18,39 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 
 public class BFPredictAPI {
     final static String BF_URL = "http://10.0.2.2:5000/predict";
 
     String getAccessibility(String encodedImage) {
-        Log.e("bf", "in ACC");
-
         HttpURLConnection urlConnection = null;
+        String ret = null;
         try {
             URL url = new URL(BF_URL);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
 
-            String strParams = "encoded_string="+encodedImage;
-            OutputStream out = urlConnection.getOutputStream();
-            out.write(strParams.getBytes(StandardCharsets.UTF_8));
-            out.flush();
-            out.close();
+            writeToOutputStream(urlConnection.getOutputStream(), encodedImage);
 
             Log.e("d", urlConnection.getResponseCode() + " ");
 
             if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK){
                 return null;
             }
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String line;
-            String page = "";
-            while((line = reader.readLine()) != null){
-                page += line;
-            }
-            return page;
+            String result = readFromInputStream(urlConnection.getInputStream());
+            result = convertStandardJSONString(result);
+            Log.e("d", result);
+            JSONObject jsonObject = new JSONObject(result);
+            JSONArray array = jsonObject.getJSONArray("result");
+            JSONArray acc = array.getJSONArray(0);
+            JSONArray inacc = array.getJSONArray(1);
+            Log.e("d", acc.getString(1) + " " + inacc.getString(1));
+            ret = "acc: " + acc.getString(1) + " inacc: " + inacc.getString(1);
             //json {result:[["acc":"pre"], ["inacc", "pred"]]}
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             Log.e("bf", "ERROR");
             e.printStackTrace();
         } finally {
@@ -59,33 +58,31 @@ public class BFPredictAPI {
                 urlConnection.disconnect();
             }
         }
-        return "result";
+        return ret;
     }
 
-    private static String getStringFromInputStream(InputStream inputStream) {
-        BufferedReader bufferedReader = null;
-        StringBuilder stringBuilder = new StringBuilder();
-
+    private void writeToOutputStream(OutputStream out, String encodedImage) throws IOException {
+        String strParams = "encoded_string="+encodedImage;
+        out.write(strParams.getBytes(StandardCharsets.UTF_8));
+        out.flush();
+        out.close();
+    }
+    private String readFromInputStream(InputStream inputStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-            while (((line = bufferedReader.readLine()) != null)) {
-                stringBuilder.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        String result = "";
+        while((line = reader.readLine()) != null) {
+            result += line;
         }
-
-        return stringBuilder.toString();
+        return result;
     }
+
+    private static String convertStandardJSONString(String data_json) {
+        data_json = data_json.substring(1, data_json.length()-1);
+        data_json = data_json.replace("\\", "");
+        return data_json;
+    }
+
+
 
 }

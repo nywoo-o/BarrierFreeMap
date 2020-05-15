@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
@@ -90,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    static class NetworkTask extends AsyncTask<Void, Void, String> {
+    class NetworkTask extends AsyncTask<Void, Void, String> {
 
         private String values;
 
-        public NetworkTask(String values){
+        NetworkTask(String values){
             this.values = values;
         }
 
@@ -103,13 +105,14 @@ public class MainActivity extends AppCompatActivity {
             String result;
             BFPredictAPI bfPredictAPI = new BFPredictAPI();
             result = bfPredictAPI.getAccessibility(values);
-            return null;
+            return result;
         }
 
         @Override
         protected void onPostExecute(String s){
             super.onPostExecute(s);
 
+            textView.setText(s);
         }
     }
 
