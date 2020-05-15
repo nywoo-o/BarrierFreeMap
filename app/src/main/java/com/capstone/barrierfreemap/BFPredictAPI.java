@@ -1,7 +1,6 @@
 package com.capstone.barrierfreemap;
 
-
-import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -12,34 +11,55 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import androidx.core.content.res.ResourcesCompat;
-
-import static com.capstone.barrierfreemap.BFPredictAPI.getStringFromInputStream;
 
 public class BFPredictAPI {
-    final static String BF_URL = "http://localhost:5000/predict";
+    final static String BF_URL = "http://10.0.2.2:5000/predict";
 
-    void getAccessibility() {
+    String getAccessibility(String encodedImage) {
+        Log.e("bf", "in ACC");
 
-        URL url = null;
+        HttpURLConnection urlConnection = null;
         try {
-            url = new URL(BF_URL);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setConnectTimeout(30);
-            urlConnection.setReadTimeout(30);
+            URL url = new URL(BF_URL);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoOutput(true);
 
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            JSONObject json = new JSONObject(getStringFromInputStream(in));
+            String strParams = "encoded_string="+encodedImage;
+            OutputStream out = urlConnection.getOutputStream();
+            out.write(strParams.getBytes(StandardCharsets.UTF_8));
+            out.flush();
+            out.close();
 
-            Log.e("json", json.toString());
+            Log.e("d", urlConnection.getResponseCode() + " ");
+
+            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK){
+                return null;
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String line;
+            String page = "";
+            while((line = reader.readLine()) != null){
+                page += line;
+            }
+            return page;
             //json {result:[["acc":"pre"], ["inacc", "pred"]]}
-        } catch (JSONException | IOException e) {
+        } catch (IOException e) {
+            Log.e("bf", "ERROR");
             e.printStackTrace();
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
         }
+        return "result";
     }
 
     private static String getStringFromInputStream(InputStream inputStream) {
@@ -67,4 +87,5 @@ public class BFPredictAPI {
 
         return stringBuilder.toString();
     }
+
 }
