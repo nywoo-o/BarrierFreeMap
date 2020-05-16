@@ -2,14 +2,22 @@ package com.capstone.barrierfreemap;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageLoader imageLoader;
     BFPredictAPI bfPredictAPI;
     Bitmap tmp;
+    String selectedImagePath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +88,10 @@ public class MainActivity extends AppCompatActivity {
             switch (resultCode) {
                 case RESULT_OK:
                     try{
-                        InputStream in = getContentResolver().openInputStream(data.getData());
+                        Uri uri = data.getData();
+                        textView.setText(selectedImagePath + " " + uri.getAuthority());
 
+                        InputStream in = getContentResolver().openInputStream(data.getData());
                         Bitmap img = BitmapFactory.decodeStream(in);
                         in.close();
                         tmp = img;
@@ -107,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... voids) {
-            String result = bfPredictAPI.getAccessibility(values);
+            String result = "";
+            bfPredictAPI.getProbability(tmp);
             return result;
         }
 

@@ -1,5 +1,7 @@
 package com.capstone.barrierfreemap;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.renderscript.ScriptGroup;
 import android.util.Base64;
@@ -11,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,11 +24,62 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class BFPredictAPI {
     final static String ON_EMULATOR_TEST_URL = "http://10.0.2.2:5000/predict";
     final static String ON_DIVICE_TEST_URL = "http://127.0.0.1:5000/predict";
     final static String BF_URL = ON_DIVICE_TEST_URL;
+
+    void getProbability(Bitmap bitmap){
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        opt.inPreferredConfig  = Bitmap.Config.RGB_565;
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        byte[] byteArray = out.toByteArray();
+
+        RequestBody postBodyImage = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
+                .build();
+
+        postRequest(BF_URL, postBodyImage);
+    }
+
+    void postRequest(String postUrl, RequestBody postBody) {
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .post(postBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Cancel the post on failure.
+                call.cancel();
+                Log.e("fail", "fail");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                String ret = response.body().string();
+                Log.e("response", ret);
+            }
+        });
+    }
 
     String getAccessibility(String encodedImage) {
         Log.e("d", "in acc " + encodedImage.length());
