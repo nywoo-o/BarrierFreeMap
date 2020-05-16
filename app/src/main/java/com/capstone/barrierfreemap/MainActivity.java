@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
 
     private ImageLoader imageLoader;
-    private BFPredictAPI bfPredictAPI;
-
+    BFPredictAPI bfPredictAPI;
+    Bitmap tmp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +48,7 @@ public class MainActivity extends AppCompatActivity {
         galleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent, REQUEST_CODE);
+                getImageFromGallery();
             }
         });
 
@@ -59,11 +56,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 BitmapDrawable drawable = (BitmapDrawable)imageView.getDrawable();
-                String encodedImage = imageLoader.encodingBase64Image(drawable);
+                String encodedImage = imageLoader.encodingBase64Image(new BitmapDrawable(tmp));
+                Log.e("image", ""+encodedImage.length());
                 NetworkTask networkTask = new NetworkTask(encodedImage);
                 networkTask.execute();
             }
         });
+    }
+
+    private void getImageFromGallery(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
     @Override
@@ -71,23 +76,23 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == REQUEST_CODE)
         {
-            if(resultCode == RESULT_OK)
-            {
-                try{
-                    InputStream in = getContentResolver().openInputStream(data.getData());
+            switch (resultCode) {
+                case RESULT_OK:
+                    try{
+                        InputStream in = getContentResolver().openInputStream(data.getData());
 
-                    Bitmap img = BitmapFactory.decodeStream(in);
-                    in.close();
-
-                    imageView.setImageBitmap(img);
-                } catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
-            else if(resultCode == RESULT_CANCELED)
-            {
-                Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
+                        Bitmap img = BitmapFactory.decodeStream(in);
+                        in.close();
+                        tmp = img;
+                        BitmapDrawable drawable = new BitmapDrawable(img);
+                        imageView.setImageDrawable(drawable);
+                    } catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    break;
+                case RESULT_CANCELED:
+                    Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -102,16 +107,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... voids) {
-            String result;
-            BFPredictAPI bfPredictAPI = new BFPredictAPI();
-            result = bfPredictAPI.getAccessibility(values);
+            String result = bfPredictAPI.getAccessibility(values);
             return result;
         }
 
         @Override
         protected void onPostExecute(String s){
             super.onPostExecute(s);
-
             textView.setText(s);
         }
     }

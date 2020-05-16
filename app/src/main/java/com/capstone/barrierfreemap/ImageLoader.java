@@ -32,6 +32,6 @@ public class ImageLoader {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
         int quality = 100;
         bitmap.compress(compressFormat, quality, byteArrayOS);
-        return  Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+        return  Base64.encodeToString(byteArrayOS.toByteArray(), Base64.URL_SAFE);
     }
 }
