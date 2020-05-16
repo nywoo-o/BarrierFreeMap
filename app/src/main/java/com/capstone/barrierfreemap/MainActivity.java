@@ -2,34 +2,19 @@ package com.capstone.barrierfreemap;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONObject;
-
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements UImanager{
     static final int REQUEST_CODE = 0;
 
     private ImageView imageView;
@@ -37,17 +22,12 @@ public class MainActivity extends AppCompatActivity {
     private Button predictButton;
     private TextView textView;
 
-    private ImageLoader imageLoader;
-    BFPredictAPI bfPredictAPI;
-    Bitmap tmp;
-    String selectedImagePath;
+    Bitmap imageBitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        imageLoader = new ImageLoader(getBaseContext());
-        bfPredictAPI = new BFPredictAPI();
 
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
@@ -64,11 +44,8 @@ public class MainActivity extends AppCompatActivity {
         predictButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BitmapDrawable drawable = (BitmapDrawable)imageView.getDrawable();
-                String encodedImage = imageLoader.encodingBase64Image(new BitmapDrawable(tmp));
-                Log.e("image", ""+encodedImage.length());
-                NetworkTask networkTask = new NetworkTask(encodedImage);
-                networkTask.execute();
+                BFPredictAPI bfPredictAPI = new BFPredictAPI(MainActivity.this);
+                bfPredictAPI.getProbability(imageBitmap);
             }
         });
     }
@@ -88,15 +65,11 @@ public class MainActivity extends AppCompatActivity {
             switch (resultCode) {
                 case RESULT_OK:
                     try{
-                        Uri uri = data.getData();
-                        textView.setText(selectedImagePath + " " + uri.getAuthority());
-
                         InputStream in = getContentResolver().openInputStream(data.getData());
                         Bitmap img = BitmapFactory.decodeStream(in);
                         in.close();
-                        tmp = img;
-                        BitmapDrawable drawable = new BitmapDrawable(img);
-                        imageView.setImageDrawable(drawable);
+                        imageBitmap = img;
+                        imageView.setImageBitmap(img);
                     } catch(Exception e)
                     {
                         e.printStackTrace();
@@ -108,26 +81,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class NetworkTask extends AsyncTask<Void, Void, String> {
-
-        private String values;
-
-        NetworkTask(String values){
-            this.values = values;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            String result = "";
-            bfPredictAPI.getProbability(tmp);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s){
-            super.onPostExecute(s);
-            textView.setText(s);
-        }
+    @Override
+    public void setStatusText(String text) {
+        textView.setText(text);
     }
 
 }
