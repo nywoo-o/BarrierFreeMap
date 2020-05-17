@@ -65,6 +65,7 @@ public class BFPredictAPI {
                 // Cancel the post on failure.
                 call.cancel();
                 Log.e("fail", "fail");
+                e.printStackTrace();
             }
 
             @Override
@@ -81,7 +82,6 @@ public class BFPredictAPI {
                                 JSONArray array = jsonObject.getJSONArray("result");
                                 JSONArray acc = array.getJSONArray(0);
                                 JSONArray inacc = array.getJSONArray(1);
-                                Log.e("d", acc.getString(1) + " " + inacc.getString(1));
                                 String ret = "acc: " + acc.getString(1) + " inacc: " + inacc.getString(1);
                                 uiManager.setStatusText(ret);
                             } catch (JSONException | IOException e) {
@@ -92,11 +92,5 @@ public class BFPredictAPI {
                 }
             }
         });
-    }
-
-    private static String convertStandardJSONString(String data_json) {
-        data_json = data_json.substring(1, data_json.length()-1);
-        data_json = data_json.replace("\\", "");
-        return data_json;
     }
 }
