@@ -36,9 +36,9 @@ public class MainActivity extends AppCompatActivity implements UImanager{
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
-        galleryButton = findViewById(R.id.button);
-        predictButton = findViewById(R.id.button2);
+        textView = findViewById(R.id.predictResultTextView);
+        galleryButton = findViewById(R.id.galleryButton);
+        predictButton = findViewById(R.id.predictButton);
 
         galleryButton.setOnClickListener(new View.OnClickListener() {
             @Override

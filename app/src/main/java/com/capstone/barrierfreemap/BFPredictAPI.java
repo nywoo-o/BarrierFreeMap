@@ -26,7 +26,7 @@ import okhttp3.Response;
 public class BFPredictAPI {
     final static String ON_EMULATOR_TEST_URL = "http://10.0.2.2:5000/predict";
     final static String ON_DIVICE_TEST_URL = "http://127.0.0.1:5000/predict";
-    final static String BF_URL = ON_DIVICE_TEST_URL;
+    final static String BF_URL = ON_EMULATOR_TEST_URL;
 
     private UImanager uiManager;
 
