@@ -7,13 +7,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,9 +30,13 @@ public class MainActivity extends AppCompatActivity implements UImanager{
     private ImageView imageView;
     private Button galleryButton;
     private Button predictButton;
+    private Button searchButton;
     private TextView textView;
-
-    private Bitmap imageBitmap;
+    private EditText searchEditText;
+    private ImageButton mapIcon;
+    private ImageButton galleryIcon;
+    private LinearLayout mapSearchBar;
+    private LinearLayout galleryBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +44,39 @@ public class MainActivity extends AppCompatActivity implements UImanager{
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
-        galleryButton = findViewById(R.id.button);
-        predictButton = findViewById(R.id.button2);
+        textView = findViewById(R.id.predictResultTextView);
+
+        galleryIcon = findViewById(R.id.galleryIconButton);
+        galleryBar = findViewById(R.id.galleryBars);
+        galleryButton = findViewById(R.id.galleryButton);
+        predictButton = findViewById(R.id.predictButton);
+
+        mapIcon = findViewById(R.id.mapIconButton);
+        mapSearchBar = findViewById(R.id.mapSearchBars);
+        searchButton = findViewById(R.id.searchButton);
+        searchEditText = findViewById(R.id.searchEditText);
+
+        mapIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mapIcon.setAlpha(1.0f);
+                galleryIcon.setAlpha(0.3f);
+
+                mapSearchBar.setVisibility(View.VISIBLE);
+                galleryBar.setVisibility(View.GONE);
+            }
+        });
+
+        galleryIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mapIcon.setAlpha(0.3f);
+                galleryIcon.setAlpha(1.0f);
+
+                mapSearchBar.setVisibility(View.GONE);
+                galleryBar.setVisibility(View.VISIBLE);
+            }
+        });
 
         galleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,8 +88,18 @@ public class MainActivity extends AppCompatActivity implements UImanager{
         predictButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                textView.setText(getString(R.string.predictingStatus));
                 BFPredictAPI bfPredictAPI = new BFPredictAPI(MainActivity.this);
-                bfPredictAPI.getProbability(imageBitmap);
+                bfPredictAPI.getProbability(getImageBitmap());
+            }
+        });
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                textView.setText(getString(R.string.searchingStatus));
+                GoogleMapAPI googleMapAPI = new GoogleMapAPI(MainActivity.this);
+                googleMapAPI.getImage(searchEditText.getText().toString(), 299, 299);
             }
         });
     }
@@ -79,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements UImanager{
                         in.close();
 
                         img = rotateImage(uri, img);
-                        imageBitmap = img;
                         imageView.setImageBitmap(img);
                     } catch(Exception e)
                     {
@@ -95,6 +142,16 @@ public class MainActivity extends AppCompatActivity implements UImanager{
     @Override
     public void setStatusText(String text) {
         textView.setText(text);
+    }
+
+    @Override
+    public Bitmap getImageBitmap(){
+        return ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+    }
+
+    @Override
+    public void setImageViewBitmap(Bitmap bitmap){
+        imageView.setImageBitmap(bitmap);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

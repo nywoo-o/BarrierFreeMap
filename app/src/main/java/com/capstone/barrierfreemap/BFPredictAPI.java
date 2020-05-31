@@ -82,7 +82,7 @@ public class BFPredictAPI {
                                 JSONArray array = jsonObject.getJSONArray("result");
                                 JSONArray acc = array.getJSONArray(0);
                                 JSONArray inacc = array.getJSONArray(1);
-                                String ret = "acc: " + acc.getString(1) + " inacc: " + inacc.getString(1);
+                                String ret = "acc: " + acc.getString(1) + "\ninacc: " + inacc.getString(1);
                                 uiManager.setStatusText(ret);
                             } catch (JSONException | IOException e) {
                                 e.printStackTrace();
