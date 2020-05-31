@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">BarrierFreeMap</string>
+    <string name="searchButton">Search</string>
+    <string name="searchEditTextHint">건물 이름 혹은 주소를 입력하세요</string>
+    <string name="predictButton">Predict</string>
+    <string name="galleryButton">Gallery</string>
+    <string name="predictResultText">갤러리 또는 구글맵에서 사진을 업로드하고 배리어프리 여부를 확인하세요</string>
+    <string name="predictingStatus">예측 중</string>
+    <string name="searchingStatus">검색 중</string>
 </resources>

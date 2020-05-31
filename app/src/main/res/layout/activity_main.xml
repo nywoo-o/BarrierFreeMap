@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="20dp">
     <ImageButton
         android:id="@+id/mapIconButton"
+        android:alpha="0.3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/photo_maps"
@@ -21,6 +22,7 @@
         />
     <ImageButton
         android:id="@+id/galleryIconButton"
+        android:alpha="1.0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/photo_gallery"
@@ -31,41 +33,49 @@
         android:id="@+id/mapSearchBars"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="20dp">
+        android:layout_gravity="center"
+        android:layout_marginVertical="20dp"
+        android:visibility="gone">
         <EditText
-            android:layout_width="150dp"
+            android:id="@+id/searchEditText"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="가게 이름 혹은 주소를 입력하세요"/>
+            android:hint="가게 이름 혹은 주소를 입력하세요"/>
         <Button
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search"
+            android:text="@string/searchButton"
             />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/galleryBars"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginVertical="20dp">
     <Button
         android:id="@+id/galleryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Gallery"
+        android:text="@string/galleryButton"
         />
+    </LinearLayout>
+
     <Button
         android:id="@+id/predictButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Predict" />
-    </LinearLayout>
+        android:layout_gravity="center"
+        android:text="@string/predictButton" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="248dp"
-        android:layout_height="263dp"
+        android:layout_width="299dp"
+        android:layout_height="299dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="20dp"
         android:scaleType="fitXY"
         android:src="@drawable/d"
         android:contentDescription="image to predict"
@@ -75,8 +85,9 @@
         android:id="@+id/predictResultTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="Hello World!"
-        android:textSize="20sp" />
+        android:layout_gravity="center"
+        android:text="@string/predictResultText"
+        android:textSize="15sp"
+        android:paddingHorizontal="20dp"/>
 
 </LinearLayout>
