@@ -10,7 +10,7 @@
 ## Version 2.
  - Google Map API를 통해 가게명 or 주소 검색기능 추가
  
-## Version 3.
+## Version 3. (Current)
  - Google Map 지도 추가
  - 검색했던 건물 or 가게들 위치에 pin 띄워주기
 
